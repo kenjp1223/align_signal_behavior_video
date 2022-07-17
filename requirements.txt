@@ -1,0 +1,7 @@
+###### Requirements with Version Specifiers ######
+moviepy == 1.0.3            
+numpy
+os
+matplotlib
+pandas
+pickle
