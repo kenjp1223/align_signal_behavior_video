@@ -18,8 +18,6 @@ import pickle
 # Column names will be used to identify what the signal is.
 # This can be used to plot multiple FP channels or multiple cells from miniscope imaging data.
 
-
-
 def live_video_plot(video_clip, x_data, behavior_df,signal_df, **kwargs):
 
 
@@ -179,7 +177,7 @@ def live_video_plot(video_clip, x_data, behavior_df,signal_df, **kwargs):
     if not signal_single_flag:
         signal_plot = live_ax1.plot(0,signal_array[0,None],ls = '-', alpha=0.8, ms=1., lw=2.)
     else:
-        signal_plot = live_ax1.plot(0,signal_array[0],ls = '-', alpha=0.8, ms=1., lw=2.,colors = kwargs["signal_colors"])
+        signal_plot = live_ax1.plot(0,signal_array[0],ls = '-', alpha=0.8, ms=1., lw=2.,color = kwargs["signal_colors"][0])
 
     plt.tight_layout()
 
@@ -241,101 +239,12 @@ def set_parameters(video_clip,x_data):
     kwargs["behavior_colors"] = False # Color for behavior lines. If False, it will automatically color the events. 
 
     # Signal plotting variables
-    kwargs['signal_ymin'] = -0.1 # Change this to set the ymin for the signal plotting. @MAKE THIS WORK AUTOMATICALLY
-    kwargs['signal_ymax'] = 0.1 # Change this to set the ymax for the signal plotting.  @MAKE THIS WORK AUTOMATICALLY
-    kwargs['signal_ytick_step'] = 0.05 # Change this to set the ystep for the yticks for signal plotting.  @MAKE THIS WORK AUTOMATICALLY
+    kwargs['signal_ymin'] = -1 # Change this to set the ymin for the signal plotting. @MAKE THIS WORK AUTOMATICALLY
+    kwargs['signal_ymax'] = 2 # Change this to set the ymax for the signal plotting.  @MAKE THIS WORK AUTOMATICALLY
+    kwargs['signal_ytick_step'] = 0.25 # Change this to set the ystep for the yticks for signal plotting.  @MAKE THIS WORK AUTOMATICALLY
     kwargs['signal_ylabel'] = 'dF/F' # ylabel for signal
     kwargs['signal_step'] = 0.75 # Spacing between each line for signal 
     kwargs["signal_colors"] = ['green'] # Color for signal lines. If False, it will automatically color the events. If one color, all signals will be that color.
     kwargs["signal_ylim_buffer"] = 1 # Space above and below the first and last signal line.
 
     return kwargs
-
-
-# The following code will work if video 
-if __name__ == "__main__":
-
-    # Load video
-    video_file_path = input("Choose video file path");
-    if len(video_file_path) == 0:
-        print("Processing without video")
-        video_clip = False
-    else:
-        try:
-            video_clip = mpy.VideoFileClip(video_file_path)
-        except:
-            "Oops not a video file"
-        print("Processing video...")
-        print("Video: Number of frames = ",int(video_clip.fps * video_clip.duration))
-        print("Video: Duration (s) = ",video_clip.duration)
-        print("Video: FPS = ",video_clip.fps)
-
-
-
-    # Load behvaior data frame
-    behavior_df_file_path = input("Choose behavior data frame path");
-    if len(behavior_df_file_path) == 0:
-        print("Processing without behavior data")
-        behavior_df = False
-    else:
-        try:
-            behavior_df = pd.read_csv(behavior_df_file_path,index_col = False)
-        except:
-            "Oops not a behavior data frame"
-        print("Processing behavior data frame...")
-        print("Behavior: Number of frames = " + str(len(behavior_df)))
-        #print("Behavior: Duration (s) = ",behavior_df.index[-1])
-        #print("Behavior: FPS = ",int(1/np.mean(np.diff(behavior_df.index))))
-        print("Behavior: Number of behaviors = ",behavior_df.shape[1])
-
-
-    # Load signal data frame
-    signal_df_file_path = input("Choose signal data frame path");
-    if len(signal_df_file_path) == 0:
-        print("Processing without signal data")
-        signal_df = False
-    else:
-        try:
-            signal_df = pd.read_csv(signal_df_file_path,index_col = False)
-        except:
-            "Oops not a signal data frame"
-        print("Processing signal data frame...")
-        print("Ca2+ signal: Number of frames = " + str(len(signal_df)))
-        #print("Ca2+ signal: Duration (s) = ",signal_df.index[-1])
-        #print("Ca2+ signal: FPS = ",int(1/np.mean(np.diff(signal_df.index))))
-        print("Ca2+ signal: Number of signals = ",signal_df.shape[1])
-
-
-    # Load time space array
-    timespace_file_path = input("Choose timespace numpy array file path");
-    if len(timespace_file_path) == 0:
-        print("Oops not a time space array file")
-    else:
-        try:
-            timespace = np.load(timespace_file_path)
-        except:
-            "Oops not a signal data frame"
-        print("Processing timespace data...")
-        print("Timespace: Number of frames = ",timespace.shape[0])
-        print("Timespace: Duration (s) = ",timespace[-1])
-        print("Timespace: FPS = ",np.round(1/np.mean(np.diff(timespace))))
- 
-
-    # Load variables
-    variable_path = input("Choose plotting variable dictionary path");
-    if len(variable_path) == 0:
-        print("Automatically generating variables...")
-        kwargs = set_parameters(video_clip,timespace)
-    else:
-        try:
-            with open(variable_path, 'rb') as handle:
-                kwargs = pickle.load(handle)
-        except:
-            "Oops not a variable dictionary"
-    print("Check plotting variables...")
-    print(kwargs)
-
-    # Run
-    #print(kwargs['behavior_colors'])
-    #print(type(kwargs['behavior_colors']))
-    live_video_plot(video_clip, timespace, behavior_df,signal_df, **kwargs)
